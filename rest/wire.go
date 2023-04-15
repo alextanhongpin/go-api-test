@@ -4,6 +4,7 @@
 
 //go:build wireinject
 
+//go:generate wire .
 package rest
 
 import (
@@ -30,7 +31,6 @@ var (
 
 	// Handlers set.
 	healthHandlerSet = wire.NewSet(
-		provideStartAt,
 		provideHealthHandlerConfig,
 		apis.NewHealthHandler,
 	)
@@ -87,10 +87,6 @@ func (uc *productUsecase) List(ctx context.Context) ([]v1.Product, error) {
 	}, nil
 }
 
-func provideStartAt() time.Time {
-	return time.Now()
-}
-
 func provideBearerMiddleware() httpmiddleware.Middleware {
 	secret, ok := os.LookupEnv("JWT_SECRET")
 	if !ok {
@@ -100,7 +96,8 @@ func provideBearerMiddleware() httpmiddleware.Middleware {
 	return httpmiddleware.RequireAuth([]byte(secret))
 }
 
-func provideHealthHandlerConfig(startAt time.Time) *apis.HealthHandlerConfig {
+func provideHealthHandlerConfig() *apis.HealthHandlerConfig {
+	startAt := time.Now()
 	buildDate := os.Getenv("BUILD_DATE")
 	buildAt, err := time.Parse(time.RFC3339, buildDate)
 	if err != nil {

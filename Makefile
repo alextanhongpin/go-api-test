@@ -19,6 +19,9 @@ VCS_REF := $(shell git rev-parse HEAD)
 APP_VERSION := $(shell cat -s VERSION)
 APP_NAME := $(shell basename `git rev-parse --show-toplevel`)
 
+
+mockery := go run github.com/vektra/mockery/cmd/mockery
+
 info:
 	@echo App Name: $(APP_NAME)
 	@echo App Version: $(APP_VERSION)
@@ -26,19 +29,32 @@ info:
 	@echo Git Hash: $(VCS_REF)
 	@echo Build Date: $(BUILD_DATE)
 
-run: wire
+run: generate
 	@echo 'Starting the server'
 	@go run main.go
+
 
 install:
 	@echo 'Installing external dependencies'
 	@go get github.com/google/wire/cmd/wire
+	@go install github.com/vektra/mockery/cmd/mockery@v1.1.2
+	@go get github.com/vektra/mockery/...
 
-wire:
+
+generate:
+	@go generate ./...
+
+
+test:
+	@echo 'Running test coverage'
+	@go test -v -failfast -cover -coverprofile=cover.out ./...
+	@go tool cover -html=cover.out
+
+
+wire: # NOTE: Running go generate will also work
 	@echo 'Generating dependencies injection using Wire'
 	@wire ./...
 
 
-test:
-	@go test -v -failfast -cover -coverprofile=cover.out ./...
-	@go tool cover -html=cover.out
+mock: # Generates mocks for the given interface name.
+	$(mockery) -name $(name) -recursive -case underscore

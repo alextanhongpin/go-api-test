@@ -9,8 +9,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/alextanhongpin/go-api-test/internal/testutils"
 	"github.com/alextanhongpin/go-api-test/rest/apis"
-	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
 )
 
@@ -25,11 +25,8 @@ func TestHealthHandler(t *testing.T) {
 		VCSURL:  "http://xyz",
 	})
 
-	r, err := http.NewRequest("GET", "/health", nil)
-	if err != nil {
-		t.Error(err)
-	}
 	w := httptest.NewRecorder()
+	r := httptest.NewRequest("GET", "/health", nil)
 
 	handler.Show(w, r)
 	res := w.Result()
@@ -61,23 +58,9 @@ func TestHealthHandler(t *testing.T) {
 		tb,
 	))
 
-	cmpJSON(t, want, b, cmpopts.IgnoreMapEntries(func(k string, v any) bool {
+	testutils.CmpJSON(t, want, b, cmpopts.IgnoreMapEntries(func(k string, v any) bool {
 		// Skip fields that starts with "uptime", because the result is
 		// unpredictable.
 		return k == "uptime"
 	}))
-}
-
-func cmpJSON(t *testing.T, a, b []byte, opts ...cmp.Option) {
-	var l, r map[string]any
-	if err := json.Unmarshal(a, &l); err != nil {
-		t.Error(err)
-	}
-	if err := json.Unmarshal(b, &r); err != nil {
-		t.Error(err)
-	}
-
-	if diff := cmp.Diff(l, r, opts...); diff != "" {
-		t.Errorf("want(+), got(-): %s", diff)
-	}
 }

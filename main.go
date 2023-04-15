@@ -1,7 +1,6 @@
 package main
 
 import (
-	_ "embed"
 	"os"
 
 	"github.com/alextanhongpin/go-api-test/rest"
