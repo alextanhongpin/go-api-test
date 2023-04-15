@@ -37,3 +37,8 @@ install:
 wire:
 	@echo 'Generating dependencies injection using Wire'
 	@wire ./...
+
+
+test:
+	@go test -v -failfast -cover -coverprofile=cover.out ./...
+	@go tool cover -html=cover.out

@@ -5,6 +5,7 @@ go 1.20
 require (
 	github.com/alextanhongpin/go-core-microservice v0.0.0-20230415071410-b2a7378ff01b
 	github.com/go-chi/chi/v5 v5.0.8
+	github.com/google/go-cmp v0.5.8
 	github.com/google/wire v0.5.0
 	golang.org/x/exp v0.0.0-20230321023759-10a507213a29
 )
