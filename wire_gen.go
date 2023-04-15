@@ -4,7 +4,7 @@
 //go:build !wireinject
 // +build !wireinject
 
-package rest
+package main
 
 import (
 	"context"
@@ -22,7 +22,7 @@ import (
 
 // Injectors from wire.go:
 
-func New() http.Handler {
+func newRouter() http.Handler {
 	healthHandlerConfig := provideHealthHandlerConfig()
 	healthHandler := apis.NewHealthHandler(healthHandlerConfig)
 	middleware := provideBearerMiddleware()
@@ -31,8 +31,8 @@ func New() http.Handler {
 		BearerMW:      middleware,
 	}
 	categoryHandler := &v1.CategoryHandler{}
-	restProductUsecase := &productUsecase{}
-	productHandler := v1.NewProductHandler(restProductUsecase)
+	mainProductUsecase := &productUsecase{}
+	productHandler := v1.NewProductHandler(mainProductUsecase)
 	v1API := &v1.API{
 		CategoryHandler: categoryHandler,
 		ProductHandler:  productHandler,

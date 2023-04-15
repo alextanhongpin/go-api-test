@@ -22,6 +22,8 @@ APP_NAME := $(shell basename `git rev-parse --show-toplevel`)
 
 mockery := go run github.com/vektra/mockery/cmd/mockery
 
+all: run
+
 info:
 	@echo App Name: $(APP_NAME)
 	@echo App Version: $(APP_VERSION)
@@ -31,7 +33,7 @@ info:
 
 run: generate
 	@echo 'Starting the server'
-	@go run main.go
+	@go run {main,wire_gen}.go
 
 
 install:

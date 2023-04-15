@@ -5,7 +5,7 @@
 //go:build wireinject
 
 //go:generate wire .
-package rest
+package main
 
 import (
 	"context"
@@ -57,7 +57,7 @@ var (
 	)
 )
 
-func New() http.Handler {
+func newRouter() http.Handler {
 	panic(wire.Build(
 		// Middlewares.
 		provideBearerMiddleware,
