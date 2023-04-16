@@ -42,6 +42,8 @@ func TestProductHandlerShow(t *testing.T) {
 		tc := tc
 
 		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
 			assert := assert.New(t)
 			uc := new(mocks.ProductUsecase)
 			uc.On("Find", tu.ContextType, tu.StringType).Return(tc.find, tc.findErr).Once()
@@ -104,6 +106,8 @@ func TestProductHandlerList(t *testing.T) {
 		tc := tc
 
 		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
 			assert := assert.New(t)
 
 			uc := new(mocks.ProductUsecase)
