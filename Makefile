@@ -1,6 +1,7 @@
 include .env
 export
 
+include Makefile.*.mk
 
 BUILD_DATE := $(shell date -u +"%Y-%m-%dT%H:%M:%SZ")
 # $ date -R
@@ -31,6 +32,7 @@ info:
 	@echo Git Hash: $(VCS_REF)
 	@echo Build Date: $(BUILD_DATE)
 
+
 run: generate
 	@echo 'Starting the server'
 	@go run {main,wire_gen}.go
@@ -48,15 +50,16 @@ generate:
 
 
 test:
-	@echo 'Running test coverage'
+	@echo "$(OK_COLOR)Running test coverage$(NO_COLOR)"
 	@go test -v -failfast -cover -coverprofile=cover.out ./...
 	@go tool cover -html=cover.out
 
 
 wire: # NOTE: Running go generate will also work
-	@echo 'Generating dependencies injection using Wire'
+	@echo "$(OK_COLOR)Generating dependencies injection using Wire$(NO_COLOR)"
 	@wire ./...
 
 
 mock: # Generates mocks for the given interface name.
-	$(mockery) -name $(name) -recursive -case underscore
+	@echo "$(OK_COLOR)Generating mock for $(name)$(NO_COLOR)"
+	@$(mockery) -name $(name) -recursive -case underscore
