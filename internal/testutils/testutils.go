@@ -9,9 +9,12 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-var OfTypeContext = mock.MatchedBy(func(ctx context.Context) bool {
-	return true
-})
+var (
+	ContextType = mock.MatchedBy(func(ctx context.Context) bool {
+		return true
+	})
+	StringType = mock.AnythingOfType("string")
+)
 
 var InternalServerErrorBytes = []byte(`{
 	"error": {

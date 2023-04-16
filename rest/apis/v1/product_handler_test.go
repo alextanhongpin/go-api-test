@@ -8,53 +8,43 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/alextanhongpin/go-api-test/internal/testutils"
+	tu "github.com/alextanhongpin/go-api-test/internal/testutils"
 	"github.com/alextanhongpin/go-api-test/mocks"
 	v1 "github.com/alextanhongpin/go-api-test/rest/apis/v1"
 	chi "github.com/go-chi/chi/v5"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 )
 
 func TestProductHandlerShow(t *testing.T) {
-	uc := new(mocks.ProductUsecase)
 
 	tests := []struct {
-		name       string
-		setup      func()
-		statusCode int
-		res        []byte
+		name    string
+		find    *v1.Product
+		findErr error
+		want    []byte
+		status  int
 	}{
 		{
-			name: "success",
-			setup: func() {
-				pdt := &v1.Product{Name: "Colorful Socks"}
-				uc.On("Find", testutils.OfTypeContext, mock.AnythingOfType("string")).Return(pdt, nil).Once()
-			},
-			statusCode: http.StatusOK,
-			res: []byte(`{
-	"data": {
-		"name": "Colorful Socks"
-	}
-}`),
+			name:   "success",
+			find:   &v1.Product{Name: "Colorful Socks"},
+			status: http.StatusOK,
+			want:   []byte(`{"data": {"name": "Colorful Socks"}}`),
 		},
 		{
-			name: "failed",
-			setup: func() {
-				uc.On("Find", testutils.OfTypeContext, mock.AnythingOfType("string")).Return(nil, errors.New("db error")).Once()
-			},
-			statusCode: http.StatusInternalServerError,
-			res:        testutils.InternalServerErrorBytes,
+			name:    "failed",
+			findErr: errors.New("db error"),
+			status:  http.StatusInternalServerError,
+			want:    tu.InternalServerErrorBytes,
 		},
 	}
 
 	for _, tc := range tests {
 		tc := tc
-		tc.setup()
 
 		t.Run(tc.name, func(t *testing.T) {
-
 			assert := assert.New(t)
+			uc := new(mocks.ProductUsecase)
+			uc.On("Find", tu.ContextType, tu.StringType).Return(tc.find, tc.findErr).Once()
 
 			handler := v1.NewProductHandler(uc)
 
@@ -70,35 +60,31 @@ func TestProductHandlerShow(t *testing.T) {
 			res := w.Result()
 			defer res.Body.Close()
 
-			assert.Equal(tc.statusCode, res.StatusCode, "status code does not match")
+			assert.Equal(tc.status, res.StatusCode, "status code does not match")
 			got, err := ioutil.ReadAll(res.Body)
 			assert.Nil(err)
-			testutils.CmpJSON(t, tc.res, got)
+			tu.CmpJSON(t, tc.want, got)
 		})
 	}
 }
 
 func TestProductHandlerList(t *testing.T) {
-	uc := new(mocks.ProductUsecase)
-
 	tests := []struct {
-		name       string
-		setup      func()
-		res        []byte
-		statusCode int
+		name    string
+		list    []v1.Product
+		listErr error
+		want    []byte
+		status  int
 	}{
 		{
 			name: "success",
-			setup: func() {
-				ret := []v1.Product{
-					{Name: "red socks"},
-					{Name: "green socks"},
-					{Name: "blue socks"},
-				}
-				uc.On("List", testutils.OfTypeContext).Return(ret, nil).Once()
+			list: []v1.Product{
+				{Name: "red socks"},
+				{Name: "green socks"},
+				{Name: "blue socks"},
 			},
-			statusCode: http.StatusOK,
-			res: []byte(`{
+			status: http.StatusOK,
+			want: []byte(`{
 	"data": [
 		{"name": "red socks"},
 		{"name": "green socks"},
@@ -107,21 +93,21 @@ func TestProductHandlerList(t *testing.T) {
 }`),
 		},
 		{
-			name: "failed",
-			setup: func() {
-				uc.On("List", testutils.OfTypeContext).Return(nil, errors.New("db error")).Once()
-			},
-			statusCode: http.StatusInternalServerError,
-			res:        testutils.InternalServerErrorBytes,
+			name:    "failed",
+			listErr: errors.New("db error"),
+			status:  http.StatusInternalServerError,
+			want:    tu.InternalServerErrorBytes,
 		},
 	}
 
 	for _, tc := range tests {
 		tc := tc
-		tc.setup()
 
 		t.Run(tc.name, func(t *testing.T) {
 			assert := assert.New(t)
+
+			uc := new(mocks.ProductUsecase)
+			uc.On("List", tu.ContextType).Return(tc.list, tc.listErr).Once()
 
 			handler := v1.NewProductHandler(uc)
 			w := httptest.NewRecorder()
@@ -131,10 +117,10 @@ func TestProductHandlerList(t *testing.T) {
 			res := w.Result()
 			defer res.Body.Close()
 
-			assert.Equal(tc.statusCode, res.StatusCode, "status code does not match")
+			assert.Equal(tc.status, res.StatusCode, "status code does not match")
 			got, err := ioutil.ReadAll(res.Body)
 			assert.Nil(err)
-			testutils.CmpJSON(t, tc.res, got)
+			tu.CmpJSON(t, tc.want, got)
 		})
 	}
 }
