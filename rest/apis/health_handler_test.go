@@ -9,6 +9,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/alextanhongpin/go-api-test/config"
 	"github.com/alextanhongpin/go-api-test/internal/testutils"
 	"github.com/alextanhongpin/go-api-test/rest/apis"
 	"github.com/google/go-cmp/cmp/cmpopts"
@@ -16,7 +17,7 @@ import (
 
 func TestHealthHandler(t *testing.T) {
 	now := time.Now()
-	handler := apis.NewHealthHandler(&apis.HealthHandlerConfig{
+	handler := apis.NewHealthHandler(&config.Config{
 		Name:    "test",
 		Version: "0.0.1",
 		BuildAt: now,

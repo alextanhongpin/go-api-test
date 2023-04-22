@@ -9,16 +9,13 @@ package main
 
 import (
 	"context"
-	"log"
 	"net/http"
-	"os"
-	"time"
 
+	"github.com/alextanhongpin/go-api-test/config"
+	"github.com/alextanhongpin/go-api-test/rest"
 	"github.com/alextanhongpin/go-api-test/rest/apis"
 	v1 "github.com/alextanhongpin/go-api-test/rest/apis/v1"
 	httpmiddleware "github.com/alextanhongpin/go-core-microservice/http/middleware"
-	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
 	"github.com/google/wire"
 )
 
@@ -31,7 +28,6 @@ var (
 
 	// Handlers set.
 	healthHandlerSet = wire.NewSet(
-		provideHealthHandlerConfig,
 		apis.NewHealthHandler,
 	)
 
@@ -59,6 +55,9 @@ var (
 
 func newRouter() http.Handler {
 	panic(wire.Build(
+		// Provide config.
+		config.New,
+
 		// Middlewares.
 		provideBearerMiddleware,
 
@@ -67,7 +66,7 @@ func newRouter() http.Handler {
 		v1Set,
 
 		// Handler.
-		provide,
+		provideRouter,
 	))
 }
 
@@ -87,49 +86,15 @@ func (uc *productUsecase) List(ctx context.Context) ([]v1.Product, error) {
 	}, nil
 }
 
-func provideBearerMiddleware() httpmiddleware.Middleware {
-	secret, ok := os.LookupEnv("JWT_SECRET")
-	if !ok {
-		log.Fatal(`"JWT_SECRET is required"`)
-	}
-
-	return httpmiddleware.RequireAuth([]byte(secret))
+func provideBearerMiddleware(cfg *config.Config) httpmiddleware.Middleware {
+	return httpmiddleware.RequireAuth([]byte(cfg.JWT.Secret))
 }
 
-func provideHealthHandlerConfig() *apis.HealthHandlerConfig {
-	startAt := time.Now()
-	buildDate := os.Getenv("BUILD_DATE")
-	buildAt, err := time.Parse(time.RFC3339, buildDate)
-	if err != nil {
-		log.Fatalf("failed to parse BUILD_DATE: %v", err)
-	}
-
-	return &apis.HealthHandlerConfig{
-		Name:    os.Getenv("APP_NAME"),
-		Version: os.Getenv("APP_VERSION"),
-		BuildAt: buildAt,
-		StartAt: startAt,
-		VCSRef:  os.Getenv("VCS_REF"),
-		VCSURL:  os.Getenv("VCS_URL"),
-	}
-}
-
-func provide(
+func provideRouter(
 	root *apis.API,
 	v1 *v1.API,
 ) http.Handler {
-	r := chi.NewRouter()
-
-	// A good base middleware stack
-	r.Use(middleware.RequestID)
-	r.Use(middleware.RealIP)
-	r.Use(middleware.Logger)
-	r.Use(middleware.Recoverer)
-
-	// Set a timeout value on the request context (ctx), that will signal
-	// through ctx.Done() that the request has timed out and further
-	// processing should be stopped.
-	r.Use(middleware.Timeout(60 * time.Second))
+	r := rest.New()
 
 	// Register routes.
 	root.Register(r)

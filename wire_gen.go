@@ -8,24 +8,21 @@ package main
 
 import (
 	"context"
+	"github.com/alextanhongpin/go-api-test/config"
+	"github.com/alextanhongpin/go-api-test/rest"
 	"github.com/alextanhongpin/go-api-test/rest/apis"
 	"github.com/alextanhongpin/go-api-test/rest/apis/v1"
 	"github.com/alextanhongpin/go-core-microservice/http/middleware"
-	"github.com/go-chi/chi/v5"
-	middleware2 "github.com/go-chi/chi/v5/middleware"
 	"github.com/google/wire"
-	"log"
 	"net/http"
-	"os"
-	"time"
 )
 
 // Injectors from wire.go:
 
 func newRouter() http.Handler {
-	healthHandlerConfig := provideHealthHandlerConfig()
-	healthHandler := apis.NewHealthHandler(healthHandlerConfig)
-	middleware := provideBearerMiddleware()
+	configConfig := config.New()
+	healthHandler := apis.NewHealthHandler(configConfig)
+	middleware := provideBearerMiddleware(configConfig)
 	api := &apis.API{
 		HealthHandler: healthHandler,
 		BearerMW:      middleware,
@@ -37,7 +34,7 @@ func newRouter() http.Handler {
 		CategoryHandler: categoryHandler,
 		ProductHandler:  productHandler,
 	}
-	handler := provide(api, v1API)
+	handler := provideRouter(api, v1API)
 	return handler
 }
 
@@ -48,9 +45,7 @@ var (
 	productUsecaseSet = wire.NewSet(wire.Struct(new(productUsecase)), wire.Bind(new(v1.ProductUsecase), new(*productUsecase)))
 
 	// Handlers set.
-	healthHandlerSet = wire.NewSet(
-		provideHealthHandlerConfig, apis.NewHealthHandler,
-	)
+	healthHandlerSet = wire.NewSet(apis.NewHealthHandler)
 
 	categoryHandlerSet = wire.NewSet(wire.Struct(new(v1.CategoryHandler)))
 
@@ -85,44 +80,14 @@ func (uc *productUsecase) List(ctx context.Context) ([]v1.Product, error) {
 	}, nil
 }
 
-func provideBearerMiddleware() middleware.Middleware {
-	secret, ok := os.LookupEnv("JWT_SECRET")
-	if !ok {
-		log.Fatal(`"JWT_SECRET is required"`)
-	}
-
-	return middleware.RequireAuth([]byte(secret))
+func provideBearerMiddleware(cfg *config.Config) middleware.Middleware {
+	return middleware.RequireAuth([]byte(cfg.JWT.Secret))
 }
 
-func provideHealthHandlerConfig() *apis.HealthHandlerConfig {
-	startAt := time.Now()
-	buildDate := os.Getenv("BUILD_DATE")
-	buildAt, err := time.Parse(time.RFC3339, buildDate)
-	if err != nil {
-		log.Fatalf("failed to parse BUILD_DATE: %v", err)
-	}
-
-	return &apis.HealthHandlerConfig{
-		Name:    os.Getenv("APP_NAME"),
-		Version: os.Getenv("APP_VERSION"),
-		BuildAt: buildAt,
-		StartAt: startAt,
-		VCSRef:  os.Getenv("VCS_REF"),
-		VCSURL:  os.Getenv("VCS_URL"),
-	}
-}
-
-func provide(
+func provideRouter(
 	root *apis.API, v1_2 *v1.API,
 ) http.Handler {
-	r := chi.NewRouter()
-
-	r.Use(middleware2.RequestID)
-	r.Use(middleware2.RealIP)
-	r.Use(middleware2.Logger)
-	r.Use(middleware2.Recoverer)
-
-	r.Use(middleware2.Timeout(60 * time.Second))
+	r := rest.New()
 
 	root.Register(r)
 	v1_2.

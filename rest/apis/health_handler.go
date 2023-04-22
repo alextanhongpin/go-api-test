@@ -2,25 +2,16 @@ package apis
 
 import (
 	"net/http"
-	"time"
 
+	"github.com/alextanhongpin/go-api-test/config"
 	"github.com/alextanhongpin/go-core-microservice/http/encoding"
 )
 
 type HealthHandler struct {
-	cfg *HealthHandlerConfig
+	cfg *config.Config
 }
 
-type HealthHandlerConfig struct {
-	Name    string
-	Version string
-	BuildAt time.Time
-	StartAt time.Time
-	VCSRef  string
-	VCSURL  string
-}
-
-func NewHealthHandler(cfg *HealthHandlerConfig) *HealthHandler {
+func NewHealthHandler(cfg *config.Config) *HealthHandler {
 	return &HealthHandler{
 		cfg: cfg,
 	}
@@ -30,11 +21,14 @@ func (c *HealthHandler) Show(w http.ResponseWriter, r *http.Request) {
 	res := Health{
 		BuildAt:     c.cfg.BuildAt,
 		StartAt:     c.cfg.StartAt,
-		Uptime:      time.Since(c.cfg.StartAt).String(),
+		Uptime:      c.cfg.Uptime().String(),
 		VCSRef:      c.cfg.VCSRef,
 		VCSURL:      c.cfg.VCSURL,
 		Version:     c.cfg.Version,
 		ServiceName: c.cfg.Name,
+		// You can also add service health, such as db, redis, external services
+		// etc. It can be a simple ping, and a string message indicating the health
+		// of the service.
 	}
 
 	encoding.EncodeJSON(w, res, http.StatusOK)

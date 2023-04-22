@@ -16,7 +16,6 @@ import (
 )
 
 func TestProductHandlerShow(t *testing.T) {
-
 	tests := []struct {
 		name    string
 		find    *v1.Product
