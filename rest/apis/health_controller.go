@@ -7,17 +7,17 @@ import (
 	"github.com/alextanhongpin/go-core-microservice/http/encoding"
 )
 
-type HealthHandler struct {
+type HealthController struct {
 	cfg *config.Config
 }
 
-func NewHealthHandler(cfg *config.Config) *HealthHandler {
-	return &HealthHandler{
+func NewHealthController(cfg *config.Config) *HealthController {
+	return &HealthController{
 		cfg: cfg,
 	}
 }
 
-func (c *HealthHandler) Show(w http.ResponseWriter, r *http.Request) {
+func (c *HealthController) Show(w http.ResponseWriter, r *http.Request) {
 	res := Health{
 		BuildAt:     c.cfg.BuildAt,
 		StartAt:     c.cfg.StartAt,

@@ -21,18 +21,19 @@ import (
 
 func newRouter() http.Handler {
 	configConfig := config.New()
-	healthHandler := apis.NewHealthHandler(configConfig)
 	middleware := provideBearerMiddleware(configConfig)
+	healthController := apis.NewHealthController(configConfig)
 	api := &apis.API{
-		HealthHandler: healthHandler,
-		BearerMW:      middleware,
+		BearerAuth:       middleware,
+		HealthController: healthController,
 	}
-	categoryHandler := &v1.CategoryHandler{}
+	categoryController := &v1.CategoryController{}
 	mainProductUsecase := &productUsecase{}
-	productHandler := v1.NewProductHandler(mainProductUsecase)
+	productController := v1.NewProductController(mainProductUsecase)
 	v1API := &v1.API{
-		CategoryHandler: categoryHandler,
-		ProductHandler:  productHandler,
+		BearerAuth:         middleware,
+		CategoryController: categoryController,
+		ProductController:  productController,
 	}
 	handler := provideRouter(api, v1API)
 	return handler
@@ -44,23 +45,23 @@ var (
 	// Usecases set.
 	productUsecaseSet = wire.NewSet(wire.Struct(new(productUsecase)), wire.Bind(new(v1.ProductUsecase), new(*productUsecase)))
 
-	// Handlers set.
-	healthHandlerSet = wire.NewSet(apis.NewHealthHandler)
+	// Controllers set.
+	healthControllerSet = wire.NewSet(apis.NewHealthController)
 
-	categoryHandlerSet = wire.NewSet(wire.Struct(new(v1.CategoryHandler)))
+	categoryControllerSet = wire.NewSet(wire.Struct(new(v1.CategoryController)))
 
-	productHandlerSet = wire.NewSet(
-		productUsecaseSet, v1.NewProductHandler,
+	productControllerSet = wire.NewSet(
+		productUsecaseSet, v1.NewProductController,
 	)
 
 	// APIs set.
 	rootSet = wire.NewSet(
-		healthHandlerSet, wire.Struct(new(apis.API), "*"),
+		healthControllerSet, wire.Struct(new(apis.API), "*"),
 	)
 
 	v1Set = wire.NewSet(
-		categoryHandlerSet,
-		productHandlerSet, wire.Struct(new(v1.API), "*"),
+		categoryControllerSet,
+		productControllerSet, wire.Struct(new(v1.API), "*"),
 	)
 )
 

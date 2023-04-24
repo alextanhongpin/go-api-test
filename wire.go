@@ -26,29 +26,29 @@ var (
 		wire.Bind(new(v1.ProductUsecase), new(*productUsecase)),
 	)
 
-	// Handlers set.
-	healthHandlerSet = wire.NewSet(
-		apis.NewHealthHandler,
+	// Controllers set.
+	healthControllerSet = wire.NewSet(
+		apis.NewHealthController,
 	)
 
-	categoryHandlerSet = wire.NewSet(
-		wire.Struct(new(v1.CategoryHandler)),
+	categoryControllerSet = wire.NewSet(
+		wire.Struct(new(v1.CategoryController)),
 	)
 
-	productHandlerSet = wire.NewSet(
+	productControllerSet = wire.NewSet(
 		productUsecaseSet,
-		v1.NewProductHandler,
+		v1.NewProductController,
 	)
 
 	// APIs set.
 	rootSet = wire.NewSet(
-		healthHandlerSet,
+		healthControllerSet,
 		wire.Struct(new(apis.API), "*"),
 	)
 
 	v1Set = wire.NewSet(
-		categoryHandlerSet,
-		productHandlerSet,
+		categoryControllerSet,
+		productControllerSet,
 		wire.Struct(new(v1.API), "*"),
 	)
 )
@@ -65,7 +65,7 @@ func newRouter() http.Handler {
 		rootSet,
 		v1Set,
 
-		// Handler.
+		// Controller.
 		provideRouter,
 	))
 }

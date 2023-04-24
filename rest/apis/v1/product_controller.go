@@ -14,17 +14,17 @@ type ProductUsecase interface {
 	List(ctx context.Context) ([]Product, error)
 }
 
-type ProductHandler struct {
+type ProductController struct {
 	productUC ProductUsecase
 }
 
-func NewProductHandler(productUC ProductUsecase) *ProductHandler {
-	return &ProductHandler{
+func NewProductController(productUC ProductUsecase) *ProductController {
+	return &ProductController{
 		productUC: productUC,
 	}
 }
 
-func (h *ProductHandler) Show(w http.ResponseWriter, r *http.Request) {
+func (h *ProductController) Show(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 
 	p, err := h.productUC.Find(r.Context(), id)
@@ -40,7 +40,7 @@ func (h *ProductHandler) Show(w http.ResponseWriter, r *http.Request) {
 	encoding.EncodeJSON(w, res, http.StatusOK)
 }
 
-func (h *ProductHandler) List(w http.ResponseWriter, r *http.Request) {
+func (h *ProductController) List(w http.ResponseWriter, r *http.Request) {
 	p, err := h.productUC.List(r.Context())
 	if err != nil {
 		encoding.EncodeJSONError(w, err)

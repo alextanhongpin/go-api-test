@@ -8,13 +8,13 @@ import (
 	"github.com/alextanhongpin/go-core-microservice/http/types"
 )
 
-type CategoryHandler struct{}
+type CategoryController struct{}
 
-func (h *CategoryHandler) Create(w http.ResponseWriter, r *http.Request) {
+func (h *CategoryController) Create(w http.ResponseWriter, r *http.Request) {
 	encoding.EncodeJSONError(w, errors.New("not implemented"))
 }
 
-func (h *CategoryHandler) Show(w http.ResponseWriter, r *http.Request) {
+func (h *CategoryController) Show(w http.ResponseWriter, r *http.Request) {
 	res := types.Result[Category]{
 		Data: &Category{
 			Name: "Toys",
@@ -24,14 +24,14 @@ func (h *CategoryHandler) Show(w http.ResponseWriter, r *http.Request) {
 	encoding.EncodeJSON(w, res, http.StatusOK)
 }
 
-func (h *CategoryHandler) List(w http.ResponseWriter, r *http.Request) {
+func (h *CategoryController) List(w http.ResponseWriter, r *http.Request) {
 	encoding.EncodeJSONError(w, errors.New("not implemented"))
 }
 
-func (h *CategoryHandler) Update(w http.ResponseWriter, r *http.Request) {
+func (h *CategoryController) Update(w http.ResponseWriter, r *http.Request) {
 	encoding.EncodeJSONError(w, errors.New("not implemented"))
 }
 
-func (h *CategoryHandler) Delete(w http.ResponseWriter, r *http.Request) {
+func (h *CategoryController) Delete(w http.ResponseWriter, r *http.Request) {
 	encoding.EncodeJSONError(w, errors.New("not implemented"))
 }

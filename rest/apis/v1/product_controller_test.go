@@ -15,7 +15,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestProductHandlerShow(t *testing.T) {
+func TestProductControllerShow(t *testing.T) {
 	tests := []struct {
 		name    string
 		find    *v1.Product
@@ -47,7 +47,7 @@ func TestProductHandlerShow(t *testing.T) {
 			uc := new(mocks.ProductUsecase)
 			uc.On("Find", tu.ContextType, tu.StringType).Return(tc.find, tc.findErr).Once()
 
-			handler := v1.NewProductHandler(uc)
+			handler := v1.NewProductController(uc)
 
 			w := httptest.NewRecorder()
 			r := httptest.NewRequest("GET", "/v1/products/colorful-socks", nil)
@@ -69,7 +69,7 @@ func TestProductHandlerShow(t *testing.T) {
 	}
 }
 
-func TestProductHandlerList(t *testing.T) {
+func TestProductControllerList(t *testing.T) {
 	tests := []struct {
 		name    string
 		list    []v1.Product
@@ -112,7 +112,7 @@ func TestProductHandlerList(t *testing.T) {
 			uc := new(mocks.ProductUsecase)
 			uc.On("List", tu.ContextType).Return(tc.list, tc.listErr).Once()
 
-			handler := v1.NewProductHandler(uc)
+			handler := v1.NewProductController(uc)
 			w := httptest.NewRecorder()
 			r := httptest.NewRequest("GET", "/v1/products", nil)
 

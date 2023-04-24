@@ -6,11 +6,11 @@ import (
 )
 
 type API struct {
-	*HealthHandler
-	BearerMW middleware.Middleware
+	BearerAuth middleware.Middleware
+	*HealthController
 }
 
 func (api *API) Register(r chi.Router) {
-	r.Get("/health", api.HealthHandler.Show)
-	r.With(api.BearerMW).Get("/private", api.HealthHandler.Show)
+	r.Get("/health", api.HealthController.Show)
+	r.With(api.BearerAuth).Get("/private", api.HealthController.Show)
 }

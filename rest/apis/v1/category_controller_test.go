@@ -11,10 +11,10 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-func TestCategoryHandlerCreate(t *testing.T) {
+func TestCategoryControllerCreate(t *testing.T) {
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest("POST", "/v1/categories", nil)
-	handler := new(v1.CategoryHandler).Create
+	handler := new(v1.CategoryController).Create
 	handler(w, r)
 
 	res := w.Result()
@@ -29,7 +29,7 @@ func TestCategoryHandlerCreate(t *testing.T) {
 	tu.CmpJSON(t, want, got)
 }
 
-func TestCategoryHandlerShow(t *testing.T) {
+func TestCategoryControllerShow(t *testing.T) {
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest("GET", "/v1/categories/1", nil)
 
@@ -37,7 +37,7 @@ func TestCategoryHandlerShow(t *testing.T) {
 	rctx := chi.NewRouteContext()
 	rctx.URLParams.Add("id", "1")
 	r = r.WithContext(context.WithValue(r.Context(), chi.RouteCtxKey, rctx))
-	handler := new(v1.CategoryHandler).Show
+	handler := new(v1.CategoryController).Show
 	handler(w, r)
 
 	res := w.Result()
@@ -57,10 +57,10 @@ func TestCategoryHandlerShow(t *testing.T) {
 	tu.CmpJSON(t, want, got)
 }
 
-func TestCategoryHandlerList(t *testing.T) {
+func TestCategoryControllerList(t *testing.T) {
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest("GET", "/v1/categories", nil)
-	handler := new(v1.CategoryHandler).List
+	handler := new(v1.CategoryController).List
 	handler(w, r)
 
 	res := w.Result()
@@ -75,10 +75,10 @@ func TestCategoryHandlerList(t *testing.T) {
 	tu.CmpJSON(t, want, got)
 }
 
-func TestCategoryHandlerUpdate(t *testing.T) {
+func TestCategoryControllerUpdate(t *testing.T) {
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest("PATCH", "/v1/categories", nil)
-	handler := new(v1.CategoryHandler).Update
+	handler := new(v1.CategoryController).Update
 	handler(w, r)
 
 	res := w.Result()
@@ -93,10 +93,10 @@ func TestCategoryHandlerUpdate(t *testing.T) {
 	tu.CmpJSON(t, want, got)
 }
 
-func TestCategoryHandlerDelete(t *testing.T) {
+func TestCategoryControllerDelete(t *testing.T) {
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest("DELETE", "/v1/categories", nil)
-	handler := new(v1.CategoryHandler).Delete
+	handler := new(v1.CategoryController).Delete
 	handler(w, r)
 
 	res := w.Result()

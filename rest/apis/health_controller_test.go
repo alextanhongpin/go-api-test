@@ -15,9 +15,9 @@ import (
 	"github.com/google/go-cmp/cmp/cmpopts"
 )
 
-func TestHealthHandler(t *testing.T) {
+func TestHealthController(t *testing.T) {
 	now := time.Now()
-	handler := apis.NewHealthHandler(&config.Config{
+	handler := apis.NewHealthController(&config.Config{
 		Name:    "test",
 		Version: "0.0.1",
 		BuildAt: now,
