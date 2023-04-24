@@ -15,6 +15,7 @@ import (
 	"github.com/alextanhongpin/go-api-test/rest"
 	"github.com/alextanhongpin/go-api-test/rest/apis"
 	v1 "github.com/alextanhongpin/go-api-test/rest/apis/v1"
+	"github.com/alextanhongpin/go-api-test/rest/middlewares"
 	httpmiddleware "github.com/alextanhongpin/go-core-microservice/http/middleware"
 	"github.com/google/wire"
 )
@@ -31,6 +32,11 @@ var (
 		apis.NewHealthController,
 	)
 
+	authControllerSet = wire.NewSet(
+		provideTokenSigner,
+		wire.Struct(new(apis.AuthController), "*"),
+	)
+
 	categoryControllerSet = wire.NewSet(
 		wire.Struct(new(v1.CategoryController)),
 	)
@@ -43,6 +49,7 @@ var (
 	// APIs set.
 	rootSet = wire.NewSet(
 		healthControllerSet,
+		authControllerSet,
 		wire.Struct(new(apis.API), "*"),
 	)
 
@@ -84,6 +91,10 @@ func (uc *productUsecase) List(ctx context.Context) ([]v1.Product, error) {
 		{Name: "green socks"},
 		{Name: "blue socks"},
 	}, nil
+}
+
+func provideTokenSigner(cfg *config.Config) *middlewares.TokenSigner {
+	return middlewares.NewTokenSigner([]byte(cfg.JWT.Secret))
 }
 
 func provideBearerMiddleware(cfg *config.Config) httpmiddleware.Middleware {

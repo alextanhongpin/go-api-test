@@ -12,6 +12,7 @@ import (
 	"github.com/alextanhongpin/go-api-test/rest"
 	"github.com/alextanhongpin/go-api-test/rest/apis"
 	"github.com/alextanhongpin/go-api-test/rest/apis/v1"
+	"github.com/alextanhongpin/go-api-test/rest/middlewares"
 	"github.com/alextanhongpin/go-core-microservice/http/middleware"
 	"github.com/google/wire"
 	"net/http"
@@ -22,9 +23,14 @@ import (
 func newRouter() http.Handler {
 	configConfig := config.New()
 	middleware := provideBearerMiddleware(configConfig)
+	tokenSigner := provideTokenSigner(configConfig)
+	authController := &apis.AuthController{
+		TokenSigner: tokenSigner,
+	}
 	healthController := apis.NewHealthController(configConfig)
 	api := &apis.API{
 		BearerAuth:       middleware,
+		AuthController:   authController,
 		HealthController: healthController,
 	}
 	categoryController := &v1.CategoryController{}
@@ -48,6 +54,10 @@ var (
 	// Controllers set.
 	healthControllerSet = wire.NewSet(apis.NewHealthController)
 
+	authControllerSet = wire.NewSet(
+		provideTokenSigner, wire.Struct(new(apis.AuthController), "*"),
+	)
+
 	categoryControllerSet = wire.NewSet(wire.Struct(new(v1.CategoryController)))
 
 	productControllerSet = wire.NewSet(
@@ -56,7 +66,8 @@ var (
 
 	// APIs set.
 	rootSet = wire.NewSet(
-		healthControllerSet, wire.Struct(new(apis.API), "*"),
+		healthControllerSet,
+		authControllerSet, wire.Struct(new(apis.API), "*"),
 	)
 
 	v1Set = wire.NewSet(
@@ -79,6 +90,10 @@ func (uc *productUsecase) List(ctx context.Context) ([]v1.Product, error) {
 		{Name: "green socks"},
 		{Name: "blue socks"},
 	}, nil
+}
+
+func provideTokenSigner(cfg *config.Config) *middlewares.TokenSigner {
+	return middlewares.NewTokenSigner([]byte(cfg.JWT.Secret))
 }
 
 func provideBearerMiddleware(cfg *config.Config) middleware.Middleware {
