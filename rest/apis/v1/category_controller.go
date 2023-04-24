@@ -4,13 +4,19 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/alextanhongpin/go-api-test/rest/contextkey"
 	"github.com/alextanhongpin/go-core-microservice/http/encoding"
 	"github.com/alextanhongpin/go-core-microservice/http/types"
+	"golang.org/x/exp/slog"
 )
 
 type CategoryController struct{}
 
 func (h *CategoryController) Create(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	userID := contextkey.UserID.MustValue(ctx)
+	slog.Info("got user id", slog.String("userID", userID.String()))
+
 	encoding.EncodeJSONError(w, errors.New("not implemented"))
 }
 

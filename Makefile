@@ -33,7 +33,7 @@ info:
 	@echo Build Date: $(BUILD_DATE)
 
 
-run: generate
+run: wire
 	@echo 'Starting the server'
 	@go run {main,wire_gen}.go
 
@@ -43,10 +43,6 @@ install:
 	@go get github.com/google/wire/cmd/wire
 	@go install github.com/vektra/mockery/cmd/mockery@v1.1.2
 	@go get github.com/vektra/mockery/...
-
-
-generate:
-	@go generate ./...
 
 
 test:
