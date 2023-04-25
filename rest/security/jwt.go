@@ -1,11 +1,14 @@
-package middlewares
+package security
 
 import (
 	"time"
 
+	"github.com/alextanhongpin/core/http/security"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 )
+
+var AuthContext = security.AuthContext
 
 type TokenSigner struct {
 	secret []byte

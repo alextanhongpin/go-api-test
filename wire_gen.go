@@ -12,8 +12,8 @@ import (
 	"github.com/alextanhongpin/go-api-test/rest"
 	"github.com/alextanhongpin/go-api-test/rest/apis"
 	"github.com/alextanhongpin/go-api-test/rest/apis/v1"
-	"github.com/alextanhongpin/go-api-test/rest/middlewares"
-	"github.com/alextanhongpin/go-core-microservice/http/middleware"
+	"github.com/alextanhongpin/go-api-test/rest/middleware"
+	"github.com/alextanhongpin/go-api-test/rest/security"
 	"github.com/google/wire"
 	"net/http"
 )
@@ -92,12 +92,12 @@ func (uc *productUsecase) List(ctx context.Context) ([]v1.Product, error) {
 	}, nil
 }
 
-func provideTokenSigner(cfg *config.Config) *middlewares.TokenSigner {
-	return middlewares.NewTokenSigner([]byte(cfg.JWT.Secret))
+func provideTokenSigner(cfg *config.Config) *security.TokenSigner {
+	return security.NewTokenSigner([]byte(cfg.JWT.Secret))
 }
 
 func provideBearerMiddleware(cfg *config.Config) middleware.Middleware {
-	return middleware.RequireAuth([]byte(cfg.JWT.Secret))
+	return middleware.BearerAuth([]byte(cfg.JWT.Secret))
 }
 
 func provideRouter(

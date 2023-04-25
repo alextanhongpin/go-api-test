@@ -4,9 +4,8 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/alextanhongpin/core/http/response"
 	"github.com/alextanhongpin/go-api-test/rest/gate"
-	"github.com/alextanhongpin/go-core-microservice/http/encoding"
-	"github.com/alextanhongpin/go-core-microservice/http/types"
 	"golang.org/x/exp/slog"
 )
 
@@ -14,43 +13,37 @@ type CategoryController struct{}
 
 func (h *CategoryController) Create(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	user := &gate.User{}
-	if !gate.Allow(ctx, user) {
-		encoding.EncodeJSONError(w, user.Err)
+	g, err := gate.New(ctx)
+	if err != nil {
+		response.JSONError(w, err)
 		return
 	}
-	userID := user.ID
+	userID := g.User().ID()
 
 	slog.Info("got user id", slog.String("userID", userID.String()))
 
-	if !gate.Allow(ctx, &gate.CategoryCreator{UserID: userID}) {
+	if !g.Allow(&gate.CategoryCreator{}) {
 		slog.Error("not allowed to create category", slog.String("userID", userID.String()))
 		// TODO: Change to forbidden.
-		encoding.EncodeJSONError(w, types.ErrUnauthorized)
+		response.JSONError(w, response.ErrUnauthorized)
 		return
 	}
 
-	encoding.EncodeJSONError(w, errors.New("not implemented"))
+	response.JSONError(w, errors.New("not implemented"))
 }
 
 func (h *CategoryController) Show(w http.ResponseWriter, r *http.Request) {
-	res := types.Result[Category]{
-		Data: &Category{
-			Name: "Toys",
-		},
-	}
-
-	encoding.EncodeJSON(w, res, http.StatusOK)
+	response.JSON(w, response.OK(&Category{Name: "Toys"}), http.StatusOK)
 }
 
 func (h *CategoryController) List(w http.ResponseWriter, r *http.Request) {
-	encoding.EncodeJSONError(w, errors.New("not implemented"))
+	response.JSONError(w, errors.New("not implemented"))
 }
 
 func (h *CategoryController) Update(w http.ResponseWriter, r *http.Request) {
-	encoding.EncodeJSONError(w, errors.New("not implemented"))
+	response.JSONError(w, errors.New("not implemented"))
 }
 
 func (h *CategoryController) Delete(w http.ResponseWriter, r *http.Request) {
-	encoding.EncodeJSONError(w, errors.New("not implemented"))
+	response.JSONError(w, errors.New("not implemented"))
 }

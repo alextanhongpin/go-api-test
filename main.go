@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"github.com/alextanhongpin/go-core-microservice/http/server"
+	"github.com/alextanhongpin/core/http/server"
 	"golang.org/x/exp/slog"
 )
 

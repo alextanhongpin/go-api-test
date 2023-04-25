@@ -1,6 +1,6 @@
 // In this layer, we build the dependencies that are required to run the server.
 // We start by building the infrastructures (db, cache etc), then the
-// middlewares, then the usecases, and finally the handlers.
+// middleware, then the usecases, and finally the handlers.
 
 //go:build wireinject
 
@@ -15,8 +15,8 @@ import (
 	"github.com/alextanhongpin/go-api-test/rest"
 	"github.com/alextanhongpin/go-api-test/rest/apis"
 	v1 "github.com/alextanhongpin/go-api-test/rest/apis/v1"
-	"github.com/alextanhongpin/go-api-test/rest/middlewares"
-	httpmiddleware "github.com/alextanhongpin/go-core-microservice/http/middleware"
+	"github.com/alextanhongpin/go-api-test/rest/middleware"
+	"github.com/alextanhongpin/go-api-test/rest/security"
 	"github.com/google/wire"
 )
 
@@ -93,12 +93,12 @@ func (uc *productUsecase) List(ctx context.Context) ([]v1.Product, error) {
 	}, nil
 }
 
-func provideTokenSigner(cfg *config.Config) *middlewares.TokenSigner {
-	return middlewares.NewTokenSigner([]byte(cfg.JWT.Secret))
+func provideTokenSigner(cfg *config.Config) *security.TokenSigner {
+	return security.NewTokenSigner([]byte(cfg.JWT.Secret))
 }
 
-func provideBearerMiddleware(cfg *config.Config) httpmiddleware.Middleware {
-	return httpmiddleware.RequireAuth([]byte(cfg.JWT.Secret))
+func provideBearerMiddleware(cfg *config.Config) middleware.Middleware {
+	return middleware.BearerAuth([]byte(cfg.JWT.Secret))
 }
 
 func provideRouter(

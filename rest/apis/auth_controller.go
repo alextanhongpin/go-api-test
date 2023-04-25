@@ -4,14 +4,13 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/alextanhongpin/go-api-test/rest/middlewares"
-	"github.com/alextanhongpin/go-core-microservice/http/encoding"
-	"github.com/alextanhongpin/go-core-microservice/http/types"
+	"github.com/alextanhongpin/core/http/response"
+	"github.com/alextanhongpin/go-api-test/rest/security"
 	"github.com/google/uuid"
 )
 
 type AuthController struct {
-	TokenSigner *middlewares.TokenSigner
+	TokenSigner *security.TokenSigner
 }
 
 type RegisterResponse struct {
@@ -24,16 +23,12 @@ func (h *AuthController) Register(w http.ResponseWriter, r *http.Request) {
 	duration := 1 * time.Hour
 	token, err := h.TokenSigner.SignUserID(fakeUserID, duration)
 	if err != nil {
-		encoding.EncodeJSONError(w, types.ErrInternal)
+		response.JSONError(w, response.ErrInternal)
 		return
 	}
 
-	res := types.Result[RegisterResponse]{
-		Data: &RegisterResponse{
-			AccessToken: token,
-			ExpiresIn:   duration.Seconds(),
-		},
-	}
-
-	encoding.EncodeJSON(w, res, http.StatusOK)
+	response.JSON(w, response.OK(&RegisterResponse{
+		AccessToken: token,
+		ExpiresIn:   duration.Seconds(),
+	}), http.StatusOK)
 }

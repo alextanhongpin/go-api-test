@@ -1,7 +1,7 @@
 package apis
 
 import (
-	"github.com/alextanhongpin/go-core-microservice/http/middleware"
+	"github.com/alextanhongpin/core/http/middleware"
 	chi "github.com/go-chi/chi/v5"
 )
 

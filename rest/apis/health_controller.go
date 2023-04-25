@@ -3,8 +3,8 @@ package apis
 import (
 	"net/http"
 
+	"github.com/alextanhongpin/core/http/response"
 	"github.com/alextanhongpin/go-api-test/config"
-	"github.com/alextanhongpin/go-core-microservice/http/encoding"
 )
 
 type HealthController struct {
@@ -31,5 +31,5 @@ func (c *HealthController) Show(w http.ResponseWriter, r *http.Request) {
 		// of the service.
 	}
 
-	encoding.EncodeJSON(w, res, http.StatusOK)
+	response.JSON(w, res, http.StatusOK)
 }

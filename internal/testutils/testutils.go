@@ -18,8 +18,8 @@ var (
 
 var InternalServerErrorBytes = []byte(`{
 	"error": {
-		"code": "api.internal",
-		"message": "Oops, something went wrong. Please try again later."
+		"code": "internal_server_error",
+		"message": "Oops, please try again later"
 	}
 }`)
 

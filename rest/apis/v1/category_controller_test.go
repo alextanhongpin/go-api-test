@@ -5,15 +5,25 @@ import (
 	"io/ioutil"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	tu "github.com/alextanhongpin/go-api-test/internal/testutils"
 	v1 "github.com/alextanhongpin/go-api-test/rest/apis/v1"
+	"github.com/alextanhongpin/go-api-test/rest/security"
 	"github.com/go-chi/chi/v5"
+	"github.com/golang-jwt/jwt/v5"
+	"github.com/google/uuid"
 )
 
 func TestCategoryControllerCreate(t *testing.T) {
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest("POST", "/v1/categories", nil)
+	ctx := context.Background()
+	ctx = security.AuthContext.WithValue(ctx, jwt.MapClaims{
+		"exp": time.Now().Add(1 * time.Hour).Unix(),
+		"sub": uuid.New().String(),
+	})
+	r = r.WithContext(ctx)
 	handler := new(v1.CategoryController).Create
 	handler(w, r)
 

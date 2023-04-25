@@ -4,8 +4,7 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/alextanhongpin/go-core-microservice/http/encoding"
-	"github.com/alextanhongpin/go-core-microservice/http/types"
+	"github.com/alextanhongpin/core/http/response"
 	"github.com/go-chi/chi/v5"
 )
 
@@ -29,27 +28,19 @@ func (h *ProductController) Show(w http.ResponseWriter, r *http.Request) {
 
 	p, err := h.productUC.Find(r.Context(), id)
 	if err != nil {
-		encoding.EncodeJSONError(w, err)
+		response.JSONError(w, err)
 		return
 	}
 
-	res := types.Result[Product]{
-		Data: p,
-	}
-
-	encoding.EncodeJSON(w, res, http.StatusOK)
+	response.JSON(w, response.OK(&p), http.StatusOK)
 }
 
 func (h *ProductController) List(w http.ResponseWriter, r *http.Request) {
 	p, err := h.productUC.List(r.Context())
 	if err != nil {
-		encoding.EncodeJSONError(w, err)
+		response.JSONError(w, err)
 		return
 	}
 
-	res := types.Result[[]Product]{
-		Data: &p,
-	}
-
-	encoding.EncodeJSON(w, res, http.StatusOK)
+	response.JSON(w, response.OK(&p), http.StatusOK)
 }

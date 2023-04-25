@@ -1,15 +1,7 @@
 package gate
 
-import (
-	"context"
+type CategoryCreator struct{}
 
-	"github.com/google/uuid"
-)
-
-type CategoryCreator struct {
-	UserID uuid.UUID
-}
-
-func (c *CategoryCreator) Allow(ctx context.Context) bool {
-	return false
+func (c *CategoryCreator) Allow(u User) bool {
+	return true
 }

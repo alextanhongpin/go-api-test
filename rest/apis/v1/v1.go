@@ -1,7 +1,7 @@
 package v1
 
 import (
-	"github.com/alextanhongpin/go-core-microservice/http/middleware"
+	"github.com/alextanhongpin/core/http/middleware"
 	"github.com/go-chi/chi/v5"
 )
 
