@@ -1,6 +1,7 @@
 package security
 
 import (
+	"context"
 	"time"
 
 	"github.com/alextanhongpin/core/http/security"
@@ -8,7 +9,24 @@ import (
 	"github.com/google/uuid"
 )
 
-var AuthContext = security.AuthContext
+func UserIDFromContext(ctx context.Context) (uuid.UUID, error) {
+	claims, err := security.AuthContext.Value(ctx)
+	if err != nil {
+		return uuid.Nil, err
+	}
+
+	sub, err := claims.GetSubject()
+	if err != nil {
+		return uuid.Nil, err
+	}
+
+	userID, err := uuid.Parse(sub)
+	if err != nil {
+		return uuid.Nil, err
+	}
+
+	return userID, nil
+}
 
 type TokenSigner struct {
 	secret []byte

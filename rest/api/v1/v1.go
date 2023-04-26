@@ -6,7 +6,7 @@ import (
 )
 
 type API struct {
-	BearerAuth middleware.Middleware
+	RequireAuth middleware.Middleware
 	*CategoryController
 	*ProductController
 }
@@ -16,7 +16,7 @@ func (api *API) Register(r chi.Router) {
 		r.Route("/categories", func(r chi.Router) {
 			r.Get("/{id}", api.CategoryController.Show)
 			r.Get("/", api.CategoryController.List)
-			r.With(api.BearerAuth).Post("/", api.CategoryController.Create)
+			r.With(api.RequireAuth).Post("/", api.CategoryController.Create)
 			r.Patch("/", api.CategoryController.Update)
 			r.Delete("/", api.CategoryController.Delete)
 		})
@@ -24,6 +24,10 @@ func (api *API) Register(r chi.Router) {
 		r.Route("/products", func(r chi.Router) {
 			r.Get("/{id}", api.ProductController.Show)
 			r.Get("/", api.ProductController.List)
+		})
+
+		r.Group(func(r chi.Router) {
+			r.Use(api.RequireAuth)
 		})
 	})
 }

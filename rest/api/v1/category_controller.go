@@ -13,6 +13,14 @@ type CategoryController struct{}
 
 func (h *CategoryController) Create(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	// Is there a reason to use `gate` instead of calling directly say
+	// `userID := UserIdFromContext(ctx)`?
+	// Perhaps there are additional information that we want to get from the
+	// database for the particular user, so using gate abstracts the fetching of
+	// the user from the database.
+	// For such scenario, instead of calling `gate.New`, we can pass down a gate
+	// factory using dependency injection.
+	// If user id is all you need, just call UserIdFromContext(ctx).
 	g, err := gate.New(ctx)
 	if err != nil {
 		response.JSONError(w, err)
@@ -24,12 +32,11 @@ func (h *CategoryController) Create(w http.ResponseWriter, r *http.Request) {
 
 	if !g.Allow(&gate.CategoryCreator{}) {
 		slog.Error("not allowed to create category", slog.String("userID", userID.String()))
-		// TODO: Change to forbidden.
-		response.JSONError(w, response.ErrUnauthorized)
+		response.JSONError(w, response.ErrForbidden)
 		return
 	}
 
-	response.JSONError(w, errors.New("not implemented"))
+	response.JSONError(w, response.ErrUnknown)
 }
 
 func (h *CategoryController) Show(w http.ResponseWriter, r *http.Request) {

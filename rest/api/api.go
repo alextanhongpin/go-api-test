@@ -1,4 +1,4 @@
-package apis
+package api
 
 import (
 	"github.com/alextanhongpin/core/http/middleware"
@@ -6,14 +6,19 @@ import (
 )
 
 type API struct {
-	BearerAuth middleware.Middleware
+	RequireAuth middleware.Middleware
 	*AuthController
 	*HealthController
 }
 
 func (api *API) Register(r chi.Router) {
+	// Public routes.
 	r.Get("/health", api.HealthController.Show)
-	r.With(api.BearerAuth).Get("/private", api.HealthController.Show)
-
 	r.Post("/register", api.AuthController.Register)
+
+	// Private routes.
+	r.Group(func(r chi.Router) {
+		r.Use(api.RequireAuth)
+		r.Get("/private", api.HealthController.Show)
+	})
 }

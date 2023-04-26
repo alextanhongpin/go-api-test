@@ -13,8 +13,8 @@ import (
 
 	"github.com/alextanhongpin/go-api-test/config"
 	"github.com/alextanhongpin/go-api-test/rest"
-	"github.com/alextanhongpin/go-api-test/rest/apis"
-	v1 "github.com/alextanhongpin/go-api-test/rest/apis/v1"
+	"github.com/alextanhongpin/go-api-test/rest/api"
+	v1 "github.com/alextanhongpin/go-api-test/rest/api/v1"
 	"github.com/alextanhongpin/go-api-test/rest/middleware"
 	"github.com/alextanhongpin/go-api-test/rest/security"
 	"github.com/google/wire"
@@ -29,12 +29,12 @@ var (
 
 	// Controllers set.
 	healthControllerSet = wire.NewSet(
-		apis.NewHealthController,
+		api.NewHealthController,
 	)
 
 	authControllerSet = wire.NewSet(
 		provideTokenSigner,
-		wire.Struct(new(apis.AuthController), "*"),
+		wire.Struct(new(api.AuthController), "*"),
 	)
 
 	categoryControllerSet = wire.NewSet(
@@ -50,7 +50,7 @@ var (
 	rootSet = wire.NewSet(
 		healthControllerSet,
 		authControllerSet,
-		wire.Struct(new(apis.API), "*"),
+		wire.Struct(new(api.API), "*"),
 	)
 
 	v1Set = wire.NewSet(
@@ -66,7 +66,7 @@ func newRouter() http.Handler {
 		config.New,
 
 		// Middlewares.
-		provideBearerMiddleware,
+		provideAuthMiddleware,
 
 		// APIs.
 		rootSet,
@@ -97,12 +97,12 @@ func provideTokenSigner(cfg *config.Config) *security.TokenSigner {
 	return security.NewTokenSigner([]byte(cfg.JWT.Secret))
 }
 
-func provideBearerMiddleware(cfg *config.Config) middleware.Middleware {
-	return middleware.BearerAuth([]byte(cfg.JWT.Secret))
+func provideAuthMiddleware(cfg *config.Config) middleware.Middleware {
+	return middleware.RequireAuth([]byte(cfg.JWT.Secret))
 }
 
 func provideRouter(
-	root *apis.API,
+	root *api.API,
 	v1 *v1.API,
 ) http.Handler {
 	r := rest.New()

@@ -1,4 +1,4 @@
-package apis_test
+package api_test
 
 import (
 	"encoding/json"
@@ -11,13 +11,13 @@ import (
 
 	"github.com/alextanhongpin/go-api-test/config"
 	"github.com/alextanhongpin/go-api-test/internal/testutils"
-	"github.com/alextanhongpin/go-api-test/rest/apis"
+	"github.com/alextanhongpin/go-api-test/rest/api"
 	"github.com/google/go-cmp/cmp/cmpopts"
 )
 
 func TestHealthController(t *testing.T) {
 	now := time.Now()
-	handler := apis.NewHealthController(&config.Config{
+	handler := api.NewHealthController(&config.Config{
 		Name:    "test",
 		Version: "0.0.1",
 		BuildAt: now,

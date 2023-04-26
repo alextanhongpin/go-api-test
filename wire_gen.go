@@ -10,8 +10,8 @@ import (
 	"context"
 	"github.com/alextanhongpin/go-api-test/config"
 	"github.com/alextanhongpin/go-api-test/rest"
-	"github.com/alextanhongpin/go-api-test/rest/apis"
-	"github.com/alextanhongpin/go-api-test/rest/apis/v1"
+	"github.com/alextanhongpin/go-api-test/rest/api"
+	"github.com/alextanhongpin/go-api-test/rest/api/v1"
 	"github.com/alextanhongpin/go-api-test/rest/middleware"
 	"github.com/alextanhongpin/go-api-test/rest/security"
 	"github.com/google/wire"
@@ -22,14 +22,14 @@ import (
 
 func newRouter() http.Handler {
 	configConfig := config.New()
-	middleware := provideBearerMiddleware(configConfig)
+	middleware := provideAuthMiddleware(configConfig)
 	tokenSigner := provideTokenSigner(configConfig)
-	authController := &apis.AuthController{
+	authController := &api.AuthController{
 		TokenSigner: tokenSigner,
 	}
-	healthController := apis.NewHealthController(configConfig)
-	api := &apis.API{
-		BearerAuth:       middleware,
+	healthController := api.NewHealthController(configConfig)
+	apiAPI := &api.API{
+		RequireAuth:      middleware,
 		AuthController:   authController,
 		HealthController: healthController,
 	}
@@ -37,11 +37,11 @@ func newRouter() http.Handler {
 	mainProductUsecase := &productUsecase{}
 	productController := v1.NewProductController(mainProductUsecase)
 	v1API := &v1.API{
-		BearerAuth:         middleware,
+		RequireAuth:        middleware,
 		CategoryController: categoryController,
 		ProductController:  productController,
 	}
-	handler := provideRouter(api, v1API)
+	handler := provideRouter(apiAPI, v1API)
 	return handler
 }
 
@@ -52,10 +52,10 @@ var (
 	productUsecaseSet = wire.NewSet(wire.Struct(new(productUsecase)), wire.Bind(new(v1.ProductUsecase), new(*productUsecase)))
 
 	// Controllers set.
-	healthControllerSet = wire.NewSet(apis.NewHealthController)
+	healthControllerSet = wire.NewSet(api.NewHealthController)
 
 	authControllerSet = wire.NewSet(
-		provideTokenSigner, wire.Struct(new(apis.AuthController), "*"),
+		provideTokenSigner, wire.Struct(new(api.AuthController), "*"),
 	)
 
 	categoryControllerSet = wire.NewSet(wire.Struct(new(v1.CategoryController)))
@@ -67,7 +67,7 @@ var (
 	// APIs set.
 	rootSet = wire.NewSet(
 		healthControllerSet,
-		authControllerSet, wire.Struct(new(apis.API), "*"),
+		authControllerSet, wire.Struct(new(api.API), "*"),
 	)
 
 	v1Set = wire.NewSet(
@@ -96,12 +96,12 @@ func provideTokenSigner(cfg *config.Config) *security.TokenSigner {
 	return security.NewTokenSigner([]byte(cfg.JWT.Secret))
 }
 
-func provideBearerMiddleware(cfg *config.Config) middleware.Middleware {
-	return middleware.BearerAuth([]byte(cfg.JWT.Secret))
+func provideAuthMiddleware(cfg *config.Config) middleware.Middleware {
+	return middleware.RequireAuth([]byte(cfg.JWT.Secret))
 }
 
 func provideRouter(
-	root *apis.API, v1_2 *v1.API,
+	root *api.API, v1_2 *v1.API,
 ) http.Handler {
 	r := rest.New()
 

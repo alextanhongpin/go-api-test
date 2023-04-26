@@ -14,6 +14,7 @@ func New() chi.Router {
 	r.Use(middleware.RequestID)
 	r.Use(middleware.RealIP)
 	r.Use(middleware.Logger)
+	//r.Use(httpmiddleware.Logger(slog.Default()))
 	r.Use(middleware.Recoverer)
 
 	// Set a timeout value on the request context (ctx), that will signal

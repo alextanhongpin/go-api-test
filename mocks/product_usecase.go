@@ -5,7 +5,7 @@ package mocks
 import (
 	context "context"
 
-	v1 "github.com/alextanhongpin/go-api-test/rest/apis/v1"
+	v1 "github.com/alextanhongpin/go-api-test/rest/api/v1"
 	mock "github.com/stretchr/testify/mock"
 )
 

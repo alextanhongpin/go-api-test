@@ -2,6 +2,7 @@ package gate
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/alextanhongpin/core/http/response"
 	"github.com/alextanhongpin/go-api-test/rest/security"
@@ -31,19 +32,9 @@ type Gate struct {
 }
 
 func New(ctx context.Context) (*Gate, error) {
-	claims, err := security.AuthContext.Value(ctx)
+	userID, err := security.UserIDFromContext(ctx)
 	if err != nil {
-		return nil, response.ErrUnauthorized
-	}
-
-	sub, err := claims.GetSubject()
-	if err != nil {
-		return nil, response.ErrUnauthorized
-	}
-
-	userID, err := uuid.Parse(sub)
-	if err != nil {
-		return nil, response.ErrUnauthorized
+		return nil, fmt.Errorf("%w: %w", response.ErrUnauthorized, err)
 	}
 
 	return &Gate{
