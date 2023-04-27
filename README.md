@@ -1,12 +1,17 @@
 # go-api-test
 
 
-## Server configuration
+## Server Configuration
+
+There are several best practices when it comes to configuring your server:
 
 - separate the handler from the framework, this allows you to change routers
 - add graceful shutdown
-- setup read and write timeouts
-- limit the buffer size
+- set read timeouts
+- set write timeouts
+- handle context cancellation
+- limit the size of the request payload and headers
+- add rate-limiting for routes
 
 ## How to structure your APIs
 
@@ -20,8 +25,39 @@
 - document the environment variables in the `.env.sample`
 
 
-<details>
 
+<details>
+<summary>Base Endpoint</summary>
+
+### The API Struct
+Each versioned endpoint will have an `API` struct. The root `/` endpoint `API` struct can be found in `rest/api/api.go`:
+
+https://github.com/alextanhongpin/go-api-test/blob/9e8f4d96d543a98f71652da495177ad8664b8ff5/rest/api/api.go#L8-L12
+
+Here, we register the resource controllers as well as middlewares for the endpoint. 
+</details>
+
+<details>
+<summary>Adding Routes</summary>
+
+## Adding Routes
+
+Each `API` struct will have a `Register` method where we will register the resource routes.
+
+https://github.com/alextanhongpin/go-api-test/blob/9e8f4d96d543a98f71652da495177ad8664b8ff5/rest/api/api.go#L14-L24
+</details>
+
+<details>
+<summary>What are Controllers</summary>
+
+## Controllers
+
+Controllers are a collection of resources. Each controller can have several methods that maps to the HTTP methods.
+
+</details>
+
+
+<details>
 <summary>Adding new API</summary>
 
 This example demonstrates on how to add a new API endpoint
@@ -100,7 +136,6 @@ import (
 type API struct {
 	RequireAuth middleware.Middleware
 	*CategoryController
-	*ProductController
 }
 
 func (api *API) Register(r chi.Router) {
