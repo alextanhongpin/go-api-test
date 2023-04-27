@@ -20,6 +20,54 @@
 - document the environment variables in the `.env.sample`
 
 
+<details>
+<summary>Writing new API</summary>
+
+> Goal: Add a new `GET /v1/products` endpoint
+
+
+1. Go to `rest/api/v1` folder
+2. Create a new file `product_controller.go`
+3. Create a new struct `ProductController`
+4. Create a constructor `NewProductController`
+5. Add a method `List`
+
+```go
+type ProductController struct {
+	productUC ProductUsecase
+}
+
+func (h *ProductController) List(w http.ResponseWriter, r *http.Request) {
+	p, err := h.productUC.List(r.Context())
+	if err != nil {
+		response.JSONError(w, err)
+		return
+	}
+
+	response.JSON(w, response.OK(&p), http.StatusOK)
+}
+```
+
+6. Go to `rest/api/v1.go`
+7. Add the `ProductController` to the `API` struct
+8. Mount the routes accordingly
+
+```go
+type API struct {
+	*ProductController
+}
+
+func (api *API) Register(r chi.Router) {
+	r.Route("/v1", func(r chi.Router) {
+		r.Route("/products", func(r chi.Router) {
+			r.Get("/", api.ProductController.List)
+		})
+	})
+}
+```
+
+</details>
+
 ## Authorization
 
 - how to handle auth
