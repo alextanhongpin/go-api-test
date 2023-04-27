@@ -21,10 +21,12 @@
 
 
 <details>
-<summary>Writing new API</summary>
+
+<summary>Adding new API</summary>
+
+This example demonstrates on how to add a new API endpoint
 
 > Goal: Add a new `GET /v1/products` endpoint
-
 
 1. Go to `rest/api/v1` folder
 2. Create a new file `product_controller.go`
@@ -33,6 +35,8 @@
 5. Add a method `List`
 
 ```go
+package v1
+
 type ProductController struct {
 	productUC ProductUsecase
 }
@@ -53,6 +57,8 @@ func (h *ProductController) List(w http.ResponseWriter, r *http.Request) {
 8. Mount the routes accordingly
 
 ```go
+package v1
+
 type API struct {
 	*ProductController
 }
@@ -72,6 +78,48 @@ func (api *API) Register(r chi.Router) {
 
 - how to handle auth
 - getting jwt claims
+
+<details>
+<summary>Guarding Routes</summary>
+
+---
+To guard routes, we can mount the `RequireAuth` middleware.
+
+1. Go to `rest/api/v1.go` (or specific versioned endpoint)
+2. Add the `RequireAuth` middleware to the struct `API`
+3. Attach the `RequireAuth` to the routes that you want to protect in the `Register` method
+
+```go
+package v1
+
+import (
+	"github.com/alextanhongpin/core/http/middleware"
+	"github.com/go-chi/chi/v5"
+)
+
+type API struct {
+	RequireAuth middleware.Middleware
+	*CategoryController
+	*ProductController
+}
+
+func (api *API) Register(r chi.Router) {
+	r.Route("/v1", func(r chi.Router) {
+		r.Route("/categories", func(r chi.Router) {
+			// Attach to a single route
+			r.With(api.RequireAuth).Post("/", api.CategoryController.Create)
+		})
+		
+		// Attach to a group
+		r.Group(func(r chi.Router) {
+			r.Use(api.RequireAuth)
+		})
+	})
+}
+```
+
+
+</details>
 
 ## Request/response
 
