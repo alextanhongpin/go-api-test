@@ -9,6 +9,10 @@ import (
 	"github.com/google/uuid"
 )
 
+func ContextWithClaims(ctx context.Context, claims jwt.MapClaims) context.Context {
+	return security.AuthContext.WithValue(ctx, claims)
+}
+
 func UserIDFromContext(ctx context.Context) (uuid.UUID, error) {
 	claims, err := security.AuthContext.Value(ctx)
 	if err != nil {

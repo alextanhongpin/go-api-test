@@ -3,37 +3,34 @@ package v1_test
 import (
 	"context"
 	"errors"
-	"io/ioutil"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
+	"github.com/alextanhongpin/go-api-test/internal/testutils"
 	tu "github.com/alextanhongpin/go-api-test/internal/testutils"
 	"github.com/alextanhongpin/go-api-test/mocks"
-	v1 "github.com/alextanhongpin/go-api-test/rest/apis/v1"
+	v1 "github.com/alextanhongpin/go-api-test/rest/api/v1"
 	chi "github.com/go-chi/chi/v5"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestProductControllerShow(t *testing.T) {
 	tests := []struct {
-		name    string
-		find    *v1.Product
-		findErr error
-		want    []byte
-		status  int
+		name       string
+		find       *v1.Product
+		findErr    error
+		statusCode int
 	}{
 		{
-			name:   "success",
-			find:   &v1.Product{Name: "Colorful Socks"},
-			status: http.StatusOK,
-			want:   []byte(`{"data": {"name": "Colorful Socks"}}`),
+			name:       "success",
+			find:       &v1.Product{Name: "Colorful Socks"},
+			statusCode: http.StatusOK,
 		},
 		{
-			name:    "failed",
-			findErr: errors.New("db error"),
-			status:  http.StatusInternalServerError,
-			want:    tu.InternalServerErrorBytes,
+			name:       "failed",
+			findErr:    errors.New("db error"),
+			statusCode: http.StatusInternalServerError,
 		},
 	}
 
@@ -43,39 +40,31 @@ func TestProductControllerShow(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			assert := assert.New(t)
 			uc := new(mocks.ProductUsecase)
 			uc.On("Find", tu.ContextType, tu.StringType).Return(tc.find, tc.findErr).Once()
 
-			handler := v1.NewProductController(uc)
-
-			w := httptest.NewRecorder()
-			r := httptest.NewRequest("GET", "/v1/products/colorful-socks", nil)
+			handler := v1.NewProductController(uc).Show
 
 			// We need to inject the URL params manually when using chi router.
 			rctx := chi.NewRouteContext()
 			rctx.URLParams.Add("id", "1")
+
+			r := httptest.NewRequest("GET", "/v1/products/colorful-socks", nil)
 			r = r.WithContext(context.WithValue(r.Context(), chi.RouteCtxKey, rctx))
 
-			handler.Show(w, r)
-			res := w.Result()
-			defer res.Body.Close()
+			out := fmt.Sprintf("./testdata/show_product_%s_response.json", tc.name)
 
-			assert.Equal(tc.status, res.StatusCode, "status code does not match")
-			got, err := ioutil.ReadAll(res.Body)
-			assert.Nil(err)
-			tu.CmpJSON(t, tc.want, got)
+			testutils.HTTPSnapshot(t, r, handler, out, tc.statusCode)
 		})
 	}
 }
 
 func TestProductControllerList(t *testing.T) {
 	tests := []struct {
-		name    string
-		list    []v1.Product
-		listErr error
-		want    []byte
-		status  int
+		name       string
+		list       []v1.Product
+		listErr    error
+		statusCode int
 	}{
 		{
 			name: "success",
@@ -84,20 +73,12 @@ func TestProductControllerList(t *testing.T) {
 				{Name: "green socks"},
 				{Name: "blue socks"},
 			},
-			status: http.StatusOK,
-			want: []byte(`{
-	"data": [
-		{"name": "red socks"},
-		{"name": "green socks"},
-		{"name": "blue socks"}
-	]
-}`),
+			statusCode: http.StatusOK,
 		},
 		{
-			name:    "failed",
-			listErr: errors.New("db error"),
-			status:  http.StatusInternalServerError,
-			want:    tu.InternalServerErrorBytes,
+			name:       "failed",
+			listErr:    errors.New("db error"),
+			statusCode: http.StatusInternalServerError,
 		},
 	}
 
@@ -107,23 +88,13 @@ func TestProductControllerList(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			assert := assert.New(t)
-
 			uc := new(mocks.ProductUsecase)
 			uc.On("List", tu.ContextType).Return(tc.list, tc.listErr).Once()
 
-			handler := v1.NewProductController(uc)
-			w := httptest.NewRecorder()
+			handler := v1.NewProductController(uc).List
 			r := httptest.NewRequest("GET", "/v1/products", nil)
-
-			handler.List(w, r)
-			res := w.Result()
-			defer res.Body.Close()
-
-			assert.Equal(tc.status, res.StatusCode, "status code does not match")
-			got, err := ioutil.ReadAll(res.Body)
-			assert.Nil(err)
-			tu.CmpJSON(t, tc.want, got)
+			out := fmt.Sprintf("./testdata/list_products_%s_response.json", tc.name)
+			testutils.HTTPSnapshot(t, r, handler, out, tc.statusCode)
 		})
 	}
 }
