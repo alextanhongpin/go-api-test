@@ -213,3 +213,31 @@ Make a call to the protected endpoint using the token:
 ```bash
 $ curl -XPOST -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2ODI1MjgxODMsInN1YiI6IjllZTNkZDI2LWY5MWItNDNjMy04NzJkLTJlNjg0YzBjOTIzYyJ9.GFZl5v0JXC72PpGa2953Ioh3xd7nM9ezI4YL-rYNK7Q' localhost:8080/v1/categories
 ```
+
+## Testing 
+
+What is the goal of testing the API? There are many different ways of testing too, such as using Postman, writing code etc. 
+
+For now, we stick with the following goals:
+
+- tests as documentation guide
+- tests as validation for behavior
+- tests as a way to describe expected output json
+- tests as a workflow guide
+
+Test should serve as documentation. Tools like openAPI for example may show the sample expected request/response, but they don't show scenarios when you use different payload. For example, if you were to build a simple payment endpoint similar to Stripe, you will have different test cards that could trigger different scenarios. The requests are usually query string, path params, and body payload and http headers as well. The response we want to validate is usually the http headers as well as the payload body or error.
+
+Test scenarios can be written in BDD style:
+
+```markdown
+Given that User calls the POST /payments
+When the card is invalid
+Then the API will error with status 422
+And User will see Error Card Rejected.
+```
+
+Some business flows are easier to capture programmatically too. APIs workflows can consists of different steps, such as initially authenticating the users, then populating the data to be queries etc, as well as chaining multiple api steps.
+
+Should the API be making actual database calls or mutating data? probably not. we just want to simulate the request response. 
+
+
