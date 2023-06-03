@@ -1,0 +1,17 @@
+GET /v1/products/colorful-socks HTTP/1.1
+Host: example.com
+User-Agent: Go-http-client/1.1
+Accept-Encoding: gzip
+
+---
+
+HTTP/1.1 500 Internal Server Error
+Connection: close
+Content-Type: application/json
+
+{
+ "error": {
+  "code": "internal_server_error",
+  "message": "Oops, please try again later"
+ }
+}

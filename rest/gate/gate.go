@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/alextanhongpin/core/http/response"
-	"github.com/alextanhongpin/go-api-test/rest/security"
+	"github.com/alextanhongpin/go-api-test/rest/contextkey"
 	"github.com/google/uuid"
 )
 
@@ -32,7 +32,7 @@ type Gate struct {
 }
 
 func New(ctx context.Context) (*Gate, error) {
-	userID, err := security.UserIDFromContext(ctx)
+	userID, err := contextkey.UserID(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("%w: %w", response.ErrUnauthorized, err)
 	}

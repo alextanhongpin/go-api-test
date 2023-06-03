@@ -1,0 +1,20 @@
+GET /health HTTP/1.1
+Host: example.com
+User-Agent: Go-http-client/1.1
+Accept-Encoding: gzip
+
+---
+
+HTTP/1.1 200 OK
+Connection: close
+Content-Type: application/json
+
+{
+ "serviceName": "test",
+ "version": "0.0.1",
+ "buildAt": "2023-06-03T13:42:33.94731+08:00",
+ "startAt": "2023-06-03T13:42:33.94731+08:00",
+ "uptime": "119.736µs",
+ "vcsRef": "xyz",
+ "vcsUrl": "http://xyz"
+}

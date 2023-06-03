@@ -1,5 +1,5 @@
 package middleware
 
-import "github.com/alextanhongpin/core/http/middleware"
+import "net/http"
 
-type Middleware = middleware.Middleware
+type Middleware func(http.Handler) http.Handler

@@ -1,7 +1,7 @@
 package api
 
 import (
-	"github.com/alextanhongpin/core/http/middleware"
+	"github.com/alextanhongpin/go-api-test/rest/middleware"
 	chi "github.com/go-chi/chi/v5"
 )
 

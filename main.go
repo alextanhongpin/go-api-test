@@ -10,9 +10,9 @@ import (
 func main() {
 	router := newRouter()
 
-	textHandler := slog.NewTextHandler(os.Stdout)
+	textHandler := slog.NewTextHandler(os.Stdout, nil)
 	logger := slog.New(textHandler)
 	slog.SetDefault(logger)
 
-	server.New(logger, router, 8080)
+	server.ListenAndServe(":8080", router)
 }

@@ -3,16 +3,15 @@ package v1_test
 import (
 	"context"
 	"errors"
-	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
-	"github.com/alextanhongpin/go-api-test/internal/testutils"
-	tu "github.com/alextanhongpin/go-api-test/internal/testutils"
+	"github.com/alextanhongpin/core/test/testutil"
 	"github.com/alextanhongpin/go-api-test/mocks"
 	v1 "github.com/alextanhongpin/go-api-test/rest/api/v1"
 	chi "github.com/go-chi/chi/v5"
+	"github.com/stretchr/testify/mock"
 )
 
 func TestProductControllerShow(t *testing.T) {
@@ -41,7 +40,7 @@ func TestProductControllerShow(t *testing.T) {
 			t.Parallel()
 
 			uc := new(mocks.ProductUsecase)
-			uc.On("Find", tu.ContextType, tu.StringType).Return(tc.find, tc.findErr).Once()
+			uc.On("Find", mock.Anything, mock.Anything).Return(tc.find, tc.findErr).Once()
 
 			handler := v1.NewProductController(uc).Show
 
@@ -51,10 +50,7 @@ func TestProductControllerShow(t *testing.T) {
 
 			r := httptest.NewRequest("GET", "/v1/products/colorful-socks", nil)
 			r = r.WithContext(context.WithValue(r.Context(), chi.RouteCtxKey, rctx))
-
-			out := fmt.Sprintf("./testdata/show_product_%s_response.json", tc.name)
-
-			testutils.HTTPSnapshot(t, r, handler, out, tc.statusCode)
+			testutil.DumpHTTP(t, r, handler)
 		})
 	}
 }
@@ -89,12 +85,11 @@ func TestProductControllerList(t *testing.T) {
 			t.Parallel()
 
 			uc := new(mocks.ProductUsecase)
-			uc.On("List", tu.ContextType).Return(tc.list, tc.listErr).Once()
+			uc.On("List", mock.Anything).Return(tc.list, tc.listErr).Once()
 
 			handler := v1.NewProductController(uc).List
 			r := httptest.NewRequest("GET", "/v1/products", nil)
-			out := fmt.Sprintf("./testdata/list_products_%s_response.json", tc.name)
-			testutils.HTTPSnapshot(t, r, handler, out, tc.statusCode)
+			testutil.DumpHTTP(t, r, handler)
 		})
 	}
 }
