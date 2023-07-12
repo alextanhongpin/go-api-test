@@ -8,6 +8,7 @@ package main
 
 import (
 	"context"
+	"github.com/alextanhongpin/errcodes/stacktrace"
 	"github.com/alextanhongpin/go-api-test/config"
 	"github.com/alextanhongpin/go-api-test/rest"
 	"github.com/alextanhongpin/go-api-test/rest/api"
@@ -79,9 +80,8 @@ var (
 type productUsecase struct{}
 
 func (uc *productUsecase) Find(ctx context.Context, id string) (*v1.Product, error) {
-	return &v1.Product{
-		Name: "red socks",
-	}, nil
+	return nil, stacktrace.Wrap(stacktrace.New("bad product"), id)
+
 }
 
 func (uc *productUsecase) List(ctx context.Context) ([]v1.Product, error) {

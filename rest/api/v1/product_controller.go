@@ -2,10 +2,14 @@ package v1
 
 import (
 	"context"
+	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/alextanhongpin/core/http/response"
+	"github.com/alextanhongpin/errcodes/stacktrace"
 	"github.com/go-chi/chi/v5"
+	"golang.org/x/exp/slog"
 )
 
 type ProductUsecase interface {
@@ -28,6 +32,10 @@ func (h *ProductController) Show(w http.ResponseWriter, r *http.Request) {
 
 	p, err := h.productUC.Find(r.Context(), id)
 	if err != nil {
+		st := stacktrace.Sprint(err, false)
+		fmt.Println(st)
+		lines := strings.Split(st, "\n")
+		slog.Error("failed to show product", slog.Any("stacktrace", lines))
 		response.JSONError(w, err)
 		return
 	}
