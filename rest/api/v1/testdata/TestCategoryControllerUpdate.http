@@ -1,13 +1,8 @@
+-- request.http --
 PATCH /v1/categories HTTP/1.1
 Host: example.com
-User-Agent: Go-http-client/1.1
-Transfer-Encoding: chunked
-Accept-Encoding: gzip
 
-0
-
----
-
+-- response.http --
 HTTP/1.1 500 Internal Server Error
 Connection: close
 Content-Type: application/json

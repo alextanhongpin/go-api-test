@@ -7,9 +7,9 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/alextanhongpin/core/test/testutil"
 	"github.com/alextanhongpin/go-api-test/mocks"
 	v1 "github.com/alextanhongpin/go-api-test/rest/api/v1"
+	"github.com/alextanhongpin/testdump/httpdump"
 	chi "github.com/go-chi/chi/v5"
 	"github.com/stretchr/testify/mock"
 )
@@ -48,9 +48,11 @@ func TestProductControllerShow(t *testing.T) {
 			rctx := chi.NewRouteContext()
 			rctx.URLParams.Add("id", "1")
 
+			w := httptest.NewRecorder()
 			r := httptest.NewRequest("GET", "/v1/products/colorful-socks", nil)
 			r = r.WithContext(context.WithValue(r.Context(), chi.RouteCtxKey, rctx))
-			testutil.DumpHTTP(t, r, handler)
+			h := httpdump.HandlerFunc(t, handler)
+			h.ServeHTTP(w, r)
 		})
 	}
 }
@@ -88,8 +90,10 @@ func TestProductControllerList(t *testing.T) {
 			uc.On("List", mock.Anything).Return(tc.list, tc.listErr).Once()
 
 			handler := v1.NewProductController(uc).List
+			w := httptest.NewRecorder()
 			r := httptest.NewRequest("GET", "/v1/products", nil)
-			testutil.DumpHTTP(t, r, handler)
+			h := httpdump.HandlerFunc(t, handler)
+			h.ServeHTTP(w, r)
 		})
 	}
 }

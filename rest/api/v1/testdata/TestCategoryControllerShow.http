@@ -1,10 +1,8 @@
+-- request.http --
 GET /v1/categories/1 HTTP/1.1
 Host: example.com
-User-Agent: Go-http-client/1.1
-Accept-Encoding: gzip
 
----
-
+-- response.http --
 HTTP/1.1 200 OK
 Connection: close
 Content-Type: application/json

@@ -5,9 +5,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/alextanhongpin/core/test/testutil"
 	"github.com/alextanhongpin/go-api-test/config"
 	"github.com/alextanhongpin/go-api-test/rest/api"
+	"github.com/alextanhongpin/testdump/httpdump"
 )
 
 func TestHealthController(t *testing.T) {
@@ -21,6 +21,8 @@ func TestHealthController(t *testing.T) {
 		VCSURL:  "http://xyz",
 	}).Show
 
+	w := httptest.NewRecorder()
 	r := httptest.NewRequest("GET", "/health", nil)
-	testutil.DumpHTTP(t, r, handler, testutil.IgnoreFields("uptime", "startAt", "buildAt"))
+	h := httpdump.HandlerFunc(t, handler, httpdump.IgnoreResponseFields("uptime", "startAt", "buildAt"))
+	h.ServeHTTP(w, r)
 }
